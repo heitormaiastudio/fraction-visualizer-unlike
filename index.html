@@ -500,6 +500,49 @@
             font-size: 0.95rem;
             font-weight: 800;
         }
+
+        /* Responsive two-column workspace: visual result left, controls right. */
+        @media (min-width: 1000px) {
+            .main-container {
+                max-width: 1440px;
+                display: grid;
+                grid-template-columns: minmax(0, 1.85fr) minmax(330px, 1fr);
+                grid-template-areas: "visual controls";
+                align-items: start;
+                gap: 20px;
+            }
+            #control-panel { grid-area: controls; position: sticky; top: 20px; }
+            #vis-panel { grid-area: visual; min-width: 0; }
+            .controls-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 0; }
+            .op-selector { flex-direction: row; justify-content: center; }
+            .fraction-input-group { padding: 12px; }
+            .action-bar { flex-wrap: wrap; }
+            .progress-stepper { margin-bottom: 18px; }
+            .visualization-area { gap: 14px; }
+            .fraction-bar-wrapper { height: 42px; }
+        }
+        @media (max-width: 999px) {
+            .main-container { display: flex; flex-direction: column; }
+        }
+
+        @media (min-width: 1000px) {
+            .main-container:not(.has-visualization) {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .main-container:not(.has-visualization) #control-panel {
+                width: min(100%, 900px);
+                position: static;
+            }
+            .main-container:not(.has-visualization) .controls-grid {
+                grid-template-columns: 1fr auto 1fr;
+                margin-top: 12px;
+            }
+            .main-container:not(.has-visualization) .op-selector {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -674,10 +717,12 @@
             setOp('+');
             validateAndRenderControls();
             document.getElementById('vis-panel').style.display = 'none';
+            document.querySelector('.main-container').classList.remove('has-visualization');
         }
 
         function newExample() {
             document.getElementById('vis-panel').style.display = 'none';
+            document.querySelector('.main-container').classList.remove('has-visualization');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -710,13 +755,17 @@
         function startVisualization() {
             if (!validateAndRenderControls()) {
                 document.getElementById('vis-panel').style.display = 'none';
+            document.querySelector('.main-container').classList.remove('has-visualization');
                 return;
             }
 
             document.getElementById('vis-panel').style.display = 'block';
+            document.querySelector('.main-container').classList.add('has-visualization');
             state.currentStage = 1;
             renderStage();
-            document.getElementById('vis-panel').scrollIntoView({ behavior: 'smooth' });
+            if (window.innerWidth < 1000) {
+                document.getElementById('vis-panel').scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function nextStage() {
